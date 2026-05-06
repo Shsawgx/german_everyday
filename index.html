@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Настройки уровня</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h2 { margin-top: 0; }
+        .level-card {
+            background-color: var(--tg-theme-secondary-bg-color);
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .level-card.active {
+            border-color: var(--tg-theme-button-color);
+            background-color: var(--tg-theme-bg-color);
+        }
+        .level-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: block;
+        }
+        .level-desc {
+            font-size: 0.9rem;
+            opacity: 0.6;
+        }
+        #save-btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            background-color: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+            font-weight: bold;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h2>Выбери свой уровень</h2>
+    
+    <div class="level-card" onclick="selectLevel('A1', this)">
+        <span class="level-title">A1 (Beginner)</span>
+        <span class="level-desc">Простые слова: Hund, Haus, Apfel</span>
+    </div>
+
+    <div class="level-card" onclick="selectLevel('A2', this)">
+        <span class="level-title">A2 (Elementary)</span>
+        <span class="level-desc">Повседневные фразы и базовые темы</span>
+    </div>
+
+    <div class="level-card" onclick="selectLevel('B1', this)">
+        <span class="level-title">B1 (Intermediate)</span>
+        <span class="level-desc">Сложные термины и абстрактные понятия</span>
+    </div>
+
+    <button id="save-btn" onclick="saveSettings()">СОХРАНИТЬ</button>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        let selectedLevel = 'A1';
+
+        tg.expand(); // Развернуть на весь экран
+
+        function selectLevel(level, element) {
+            selectedLevel = level;
+            // Убираем активность у всех
+            document.querySelectorAll('.level-card').forEach(card => card.classList.remove('active'));
+            // Добавляем текущему
+            element.classList.add('active');
+            // Легкая вибрация при клике
+            tg.HapticFeedback.impactOccurred('light');
+        }
+
+        function saveSettings() {
+            // Отправляем данные обратно в бот
+            tg.sendData(selectedLevel); 
+            // Приложение закроется само после отправки
+        }
+    </script>
+</body>
+</html>

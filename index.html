@@ -2,98 +2,216 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Настройки уровня</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Deutsch Lernen</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #ffffff);
+            --text-color: var(--tg-theme-text-color, #000000);
+            --hint-color: var(--tg-theme-hint-color, #999999);
+            --button-color: var(--tg-theme-button-color, #007aff);
+            --secondary-bg: var(--tg-theme-secondary-bg-color, #f0f0f5);
+        }
+
         body {
-            background-color: var(--tg-theme-bg-color);
-            color: var(--tg-theme-text-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
-        h2 { margin-top: 0; }
-        .level-card {
-            background-color: var(--tg-theme-secondary-bg-color);
+
+        .header {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(45deg, var(--button-color), #5ac8fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--hint-color);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .level-grid {
+            display: grid;
+            gap: 12px;
             width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 12px;
+        }
+
+        .card {
+            background: var(--secondary-bg);
+            border-radius: 16px;
+            padding: 20px;
             border: 2px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .card:active {
+            transform: scale(0.97);
+            filter: brightness(0.9);
+        }
+
+        .card.active {
+            border-color: var(--button-color);
+            background: var(--bg-color);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        .card.active::after {
+            content: "✓";
+            color: var(--button-color);
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .level-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .level-badge {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--button-color);
+            font-weight: 600;
+        }
+
+        .footer {
+            margin-top: auto;
+            padding: 20px 0;
+        }
+
+        #main-button {
+            width: 100%;
+            height: 56px;
+            background-color: var(--button-color);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 17px;
+            font-weight: 600;
             cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
             transition: all 0.2s ease;
         }
-        .level-card.active {
-            border-color: var(--tg-theme-button-color);
-            background-color: var(--tg-theme-bg-color);
-        }
-        .level-title {
-            font-weight: bold;
-            font-size: 1.2rem;
-            display: block;
-        }
-        .level-desc {
-            font-size: 0.9rem;
+
+        #main-button:disabled {
             opacity: 0.6;
+            filter: grayscale(1);
         }
-        #save-btn {
-            margin-top: 20px;
-            width: 100%;
-            padding: 15px;
-            border-radius: 12px;
-            border: none;
-            background-color: var(--tg-theme-button-color);
-            color: var(--tg-theme-button-text-color);
-            font-weight: bold;
-            font-size: 1rem;
+
+        /* Анимация при выборе */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
-    <h2>Выбери свой уровень</h2>
-    
-    <div class="level-card" onclick="selectLevel('A1', this)">
-        <span class="level-title">A1 (Beginner)</span>
-        <span class="level-desc">Простые слова: Hund, Haus, Apfel</span>
+
+    <div class="header">
+        <h1>Mein Deutsch</h1>
+        <p>Настрой свой путь обучения</p>
     </div>
 
-    <div class="level-card" onclick="selectLevel('A2', this)">
-        <span class="level-title">A2 (Elementary)</span>
-        <span class="level-desc">Повседневные фразы и базовые темы</span>
+    <div class="level-grid">
+        <div class="card" id="card-A1" onclick="selectLevel('A1')">
+            <div class="info">
+                <span class="level-badge">Anfänger</span>
+                <span class="level-name">Уровень A1</span>
+            </div>
+        </div>
+
+        <div class="card" id="card-A2" onclick="selectLevel('A2')">
+            <div class="info">
+                <span class="level-badge">Grundlagen</span>
+                <span class="level-name">Уровень A2</span>
+            </div>
+        </div>
+
+        <div class="card" id="card-B1" onclick="selectLevel('B1')">
+            <div class="info">
+                <span class="level-badge">Fortgeschritten</span>
+                <span class="level-name">Уровень B1</span>
+            </div>
+        </div>
+        
+        <div class="card" id="card-B2" onclick="selectLevel('B2')">
+            <div class="info">
+                <span class="level-badge">Profi</span>
+                <span class="level-name">Уровень B2</span>
+            </div>
+        </div>
     </div>
 
-    <div class="level-card" onclick="selectLevel('B1', this)">
-        <span class="level-title">B1 (Intermediate)</span>
-        <span class="level-desc">Сложные термины и абстрактные понятия</span>
+    <div class="footer">
+        <button id="main-button" onclick="save()">Сохранить настройки</button>
     </div>
-
-    <button id="save-btn" onclick="saveSettings()">СОХРАНИТЬ</button>
 
     <script>
         let tg = window.Telegram.WebApp;
-        let selectedLevel = 'A1';
+        let currentLevel = 'A1';
 
-        tg.expand(); // Развернуть на весь экран
+        tg.expand();
+        tg.ready();
 
-        function selectLevel(level, element) {
-            selectedLevel = level;
-            // Убираем активность у всех
-            document.querySelectorAll('.level-card').forEach(card => card.classList.remove('active'));
-            // Добавляем текущему
-            element.classList.add('active');
-            // Легкая вибрация при клике
-            tg.HapticFeedback.impactOccurred('light');
+        // Установка начальной темы кнопок под Telegram
+        document.getElementById('main-button').style.backgroundColor = tg.themeParams.button_color;
+
+        function selectLevel(level) {
+            currentLevel = level;
+            
+            // Визуальный отклик
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.getElementById('card-' + level).classList.add('active');
+            
+            // Легкая вибрация iOS/Android
+            tg.HapticFeedback.selectionChanged();
         }
 
-        function saveSettings() {
-            // Отправляем данные обратно в бот
-            tg.sendData(selectedLevel); 
-            // Приложение закроется само после отправки
+        function save() {
+            // Сильная вибрация при сохранении
+            tg.HapticFeedback.notificationOccurred('success');
+            
+            // Анимация кнопки
+            const btn = document.getElementById('main-button');
+            btn.innerText = "Сохранено!";
+            
+            setTimeout(() => {
+                tg.sendData(currentLevel);
+            }, 500);
         }
+
+        // По умолчанию выберем A1
+        selectLevel('A1');
     </script>
 </body>
 </html>
